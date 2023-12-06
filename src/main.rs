@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crossterm::event::{self, Event, KeyCode};
+use crossterm::event::{self, Event};
 use anyhow::*;
 
 pub mod model;
@@ -50,15 +50,6 @@ fn handle_event(_: &Model) -> anyhow::Result<Option<Message>> {
         }
     }
     Ok(None)
-}
-
-fn handle_key(key: event::KeyEvent) -> Option<Message> {
-    match key.code {
-        KeyCode::Char('j') => Some(Message::Increment),
-        KeyCode::Char('k') => Some(Message::Decrement),
-        KeyCode::Char('q') => Some(Message::Quit),
-        _ => None,
-    }
 }
 
 mod tui {
