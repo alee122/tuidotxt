@@ -5,6 +5,8 @@ use std::path::Path;
 use std::fs::File;
 use std::result::Result::Ok;
 use crossterm::event::{self, Event};
+use todo_txt::task::Task;
+use std::vec::Vec;
 
 pub mod model;
 use model::{Model, RunningState};
@@ -22,13 +24,9 @@ fn main() -> anyhow::Result<()> {
     tui::install_panic_hook();
     let mut terminal = tui::init_terminal()?;
     let mut model = Model::default();
-    if let Ok(lines) = read_lines("../../todo.txt") {
-        for line in lines {
-            if let Ok(ip) = line {
-                model.to_do.push(todo_txt::Task::from_str(&ip).unwrap());
-            }
-        }
-    }
+    read_list(&mut model.to_do, "../../todo.txt");
+    read_list(&mut model.stuck, "../../todo_stuck.txt");
+    read_list(&mut model.today, "../../todo_today.txt");
 
     while model.running_state != RunningState::Done {
         // Render the current view
@@ -45,6 +43,16 @@ fn main() -> anyhow::Result<()> {
 
     tui::restore_terminal()?;
     Ok(())
+}
+
+fn read_list(task_list : &mut Vec<Task>, filename : &str ) {
+    if let Ok(lines) = read_lines(filename) {
+        for line in lines {
+            if let Ok(ip) = line {
+                task_list.push(todo_txt::Task::from_str(&ip).unwrap());
+            }
+        }
+    }
 }
 
 fn read_lines<P>(filename: P) -> anyhow::Result<io::Lines<io::BufReader<File>>>
