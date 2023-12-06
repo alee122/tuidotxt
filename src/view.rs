@@ -1,4 +1,5 @@
 use ratatui::{prelude::*, widgets::*};
+//use ratatui::text::{Line, Span};
 use crate::model::*;
 
 pub fn view(model:&mut Model, f: &mut Frame) {
@@ -11,8 +12,15 @@ pub fn view(model:&mut Model, f: &mut Frame) {
                      Constraint::Percentage(33),
         ])
         .split(f.size());
-    f.render_widget(
-        Paragraph::new(format!("{}", model.to_do[0].subject))
+
+    let mut todo_list = Vec::<ListItem>::new();
+    for task in model.to_do.iter() {
+        todo_list.push(ListItem::new(Line::from(Span::raw(
+                        format!("{}", task.subject)
+                        ))));
+    }
+    let list = List::new(todo_list);
+    f.render_widget(list
         .block(Block::default()
                .title("To Do")
                .title_alignment(Alignment::Center)
