@@ -1,35 +1,19 @@
 use std::time::Duration;
 
 use crossterm::event::{self, Event, KeyCode};
-// cargo add anyhow crossterm ratatui
-use ratatui::{prelude::*, widgets::*};
 use anyhow::*;
-use std::vec::Vec;
-use todo_txt::task::Task;
 
-#[derive(Debug, Default)]
-struct Model {
-    counter: i32,
-    running_state: RunningState,
-    _to_do : Vec<Task>,
-    _today : Vec<Task>,
-    _stuck : Vec<Task>
-}
+pub mod model;
+use model::{Model, RunningState};
 
-#[derive(Debug, Default, PartialEq, Eq)]
-enum RunningState {
-    #[default]
-    Running,
-    Done,
-}
+pub mod view;
+use view::view;
 
-#[derive(PartialEq)]
-enum Message {
-    Increment,
-    Decrement,
-    Reset,
-    Quit,
-}
+pub mod update;
+use update::update;
+
+pub mod message;
+use message::*;
 
 fn main() -> anyhow::Result<()> {
     tui::install_panic_hook();
@@ -38,7 +22,7 @@ fn main() -> anyhow::Result<()> {
 
     while model.running_state != RunningState::Done {
         // Render the current view
-        terminal.draw(|f| view(&mut model, f))?;
+        terminal.draw(|f| view(f))?;
 
         // Handle events and map to a Message
         let mut current_msg = handle_event(&model)?;
@@ -51,30 +35,6 @@ fn main() -> anyhow::Result<()> {
 
     tui::restore_terminal()?;
     Ok(())
-}
-
-fn view(_model: &mut Model, f: &mut Frame) {
-    use ratatui::prelude::*;
-    let layout = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints(vec![
-                     Constraint::Percentage(33),
-                     Constraint::Percentage(33),
-                     Constraint::Percentage(33),
-        ])
-        .split(f.size());
-    f.render_widget(
-        Paragraph::new("To Do")
-        .block(Block::new().borders(Borders::ALL)),
-        layout[0]);
-    f.render_widget(
-        Paragraph::new("Today")
-        .block(Block::new().borders(Borders::ALL)),
-        layout[1]);
-    f.render_widget(
-        Paragraph::new("Stuck")
-        .block(Block::new().borders(Borders::ALL)),
-        layout[2]);
 }
 
 /// Convert Event to Message
@@ -99,29 +59,6 @@ fn handle_key(key: event::KeyEvent) -> Option<Message> {
         KeyCode::Char('q') => Some(Message::Quit),
         _ => None,
     }
-}
-
-fn update(model: &mut Model, msg: Message) -> Option<Message> {
-    match msg {
-        Message::Increment => {
-            model.counter += 1;
-            if model.counter > 50 {
-                return Some(Message::Reset);
-            }
-        }
-        Message::Decrement => {
-            model.counter -= 1;
-            if model.counter < -50 {
-                return Some(Message::Reset);
-            }
-        }
-        Message::Reset => model.counter = 0,
-        Message::Quit => {
-            // You can handle cleanup and exit here
-            model.running_state = RunningState::Done;
-        }
-    };
-    None
 }
 
 mod tui {
