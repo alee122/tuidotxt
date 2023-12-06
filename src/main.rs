@@ -1,7 +1,12 @@
 use std::time::Duration;
-
+use std::str::FromStr;
+use std::io::{self, BufRead};
+use std::path::Path;
+use std::fs::File;
+use std::result::Result::Ok;
 use crossterm::event::{self, Event};
-use anyhow::*;
+use todo_txt::task::Task;
+use std::vec::Vec;
 
 pub mod model;
 use model::{Model, RunningState};
@@ -19,10 +24,13 @@ fn main() -> anyhow::Result<()> {
     tui::install_panic_hook();
     let mut terminal = tui::init_terminal()?;
     let mut model = Model::default();
+    read_list(&mut model.to_do, "../../todo.txt");
+    read_list(&mut model.stuck, "../../todo_stuck.txt");
+    read_list(&mut model.today, "../../todo_today.txt");
 
     while model.running_state != RunningState::Done {
         // Render the current view
-        terminal.draw(|f| view(f))?;
+        terminal.draw(|f| view(&mut model, f))?;
 
         // Handle events and map to a Message
         let mut current_msg = handle_event(&model)?;
@@ -35,6 +43,22 @@ fn main() -> anyhow::Result<()> {
 
     tui::restore_terminal()?;
     Ok(())
+}
+
+fn read_list(task_list : &mut Vec<Task>, filename : &str ) {
+    if let Ok(lines) = read_lines(filename) {
+        for line in lines {
+            if let Ok(ip) = line {
+                task_list.push(todo_txt::Task::from_str(&ip).unwrap());
+            }
+        }
+    }
+}
+
+fn read_lines<P>(filename: P) -> anyhow::Result<io::Lines<io::BufReader<File>>>
+where P: AsRef<Path>, {
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
 }
 
 /// Convert Event to Message
