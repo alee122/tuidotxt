@@ -1,6 +1,7 @@
 use ratatui::{prelude::*, widgets::*};
+use crate::model::*;
 
-pub fn view(f: &mut Frame) {
+pub fn view(model:&mut Model, f: &mut Frame) {
     use ratatui::prelude::*;
     let layout = Layout::default()
         .direction(Direction::Horizontal)
@@ -11,7 +12,7 @@ pub fn view(f: &mut Frame) {
         ])
         .split(f.size());
     f.render_widget(
-        Paragraph::new("")
+        Paragraph::new(format!("{}", model.to_do[0].subject))
         .block(Block::default()
                .title("To Do")
                .title_alignment(Alignment::Center)

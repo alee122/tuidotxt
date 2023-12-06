@@ -1,4 +1,5 @@
 use std::time::Duration;
+use std::str::FromStr;
 
 use crossterm::event::{self, Event};
 use anyhow::*;
@@ -19,10 +20,12 @@ fn main() -> anyhow::Result<()> {
     tui::install_panic_hook();
     let mut terminal = tui::init_terminal()?;
     let mut model = Model::default();
+    let line = "x this is done";
+    model.to_do.push(todo_txt::Task::from_str(line).unwrap());
 
     while model.running_state != RunningState::Done {
         // Render the current view
-        terminal.draw(|f| view(f))?;
+        terminal.draw(|f| view(&mut model, f))?;
 
         // Handle events and map to a Message
         let mut current_msg = handle_event(&model)?;
