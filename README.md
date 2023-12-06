@@ -7,6 +7,8 @@ Things that I accomplish today can either be done (and so removed from the view)
 
 It started as [GTD](https://hamberg.no/gtd/) but I find that being more specific than "don't forget this, but you don't have to do it today" isn't particularly helpful for me; it's a combination of everything but the "waiting for" list.
 The "stuck" list is the "waiting for" list.
-The "today" list pulls from the "to do" list and should be a reasonable number of things to get done given my schedule.
+The "today" list pulls from the "to do" list and should be a reasonable number of things to get done given my schedule, but give me the motivation to get through the whole list.
 
 So far I've been doing all this in Trello, but I want an easier to use snooze function and I want vim bindings.
+
+Lists elements should be timed out so that lists stay short enough to not need too much organization.
